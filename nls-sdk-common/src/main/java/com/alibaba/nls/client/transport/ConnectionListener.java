@@ -22,6 +22,7 @@ package com.alibaba.nls.client.transport;
  *
  */
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
@@ -47,7 +48,7 @@ public interface ConnectionListener {
      *
      * @param message the text message.
      */
-    void onMessage(String message);
+    void onMessage(String message) throws IOException;
 
     /**
      * Invoked on arrival of a binary message.

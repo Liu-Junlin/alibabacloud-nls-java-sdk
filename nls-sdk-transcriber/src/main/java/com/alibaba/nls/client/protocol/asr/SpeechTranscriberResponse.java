@@ -16,21 +16,27 @@
 
 package com.alibaba.nls.client.protocol.asr;
 
-import java.util.List;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.nls.client.protocol.SpeechResProtocol;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * @author zhishen.ml
  * @date 2018/05/24
- *
+ * <p>
  * 长语音的识别结果
  */
 public class SpeechTranscriberResponse extends SpeechResProtocol {
+    private static final Logger logger = LoggerFactory.getLogger(SpeechTranscriberListener.class);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    static class Word{
+    static class Word {
         /**
          * 识别结果
          */
@@ -45,17 +51,23 @@ public class SpeechTranscriberResponse extends SpeechResProtocol {
         public Long endTime;
 
         @Override
-        public String toString(){
-            return JSON.toJSONString(this);
+        public String toString() {
+            try {
+                return OBJECT_MAPPER.writeValueAsString(this);
+            } catch (JsonProcessingException e) {
+                logger.error("", e);
+            }
+            return "{}";
         }
     }
+
     /**
      * 句子的index
      *
      * @return
      */
     public Integer getTransSentenceIndex() {
-        return (Integer)payload.get("index");
+        return (Integer) payload.get("index");
     }
 
     /**
@@ -64,7 +76,7 @@ public class SpeechTranscriberResponse extends SpeechResProtocol {
      * @return
      */
     public Integer getTransSentenceTime() {
-        return (Integer)payload.get("time");
+        return (Integer) payload.get("time");
     }
 
     /**
@@ -73,20 +85,20 @@ public class SpeechTranscriberResponse extends SpeechResProtocol {
      * @return
      */
     public Double getConfidence() {
-        Object o=payload.get("confidence");
-        if(o!=null){
+        Object o = payload.get("confidence");
+        if (o != null) {
             return Double.parseDouble(o.toString());
         }
         return null;
     }
 
     /**
-     *  sentenceBegin事件对应的时间
+     * sentenceBegin事件对应的时间
      *
      * @return
      */
     public Integer getSentenceBeginTime() {
-        return (Integer)payload.get("begin_time");
+        return (Integer) payload.get("begin_time");
     }
 
 
@@ -96,17 +108,19 @@ public class SpeechTranscriberResponse extends SpeechResProtocol {
      * @return
      */
     public String getTransSentenceText() {
-        return (String)payload.get("result");
+        return (String) payload.get("result");
     }
 
     /**
      * 获取分词的词语.仅当enable_words=true时有效
+     *
      * @return
      */
-    public List<Word> getWords(){
-        JSONArray words=(JSONArray)payload.get("words");
-        if(words!=null){
-            return JSON.parseArray(words.toString(),Word.class);
+    public List<Word> getWords() throws IOException {
+        String words = (String) payload.get("words");
+        if (words != null) {
+            JavaType javaType = OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, Word.class);
+            return OBJECT_MAPPER.readValue(words, javaType);
         }
         return null;
     }

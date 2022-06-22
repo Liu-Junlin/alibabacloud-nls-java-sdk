@@ -16,12 +16,13 @@
 
 package com.alibaba.nls.client.protocol.asr;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.nls.client.protocol.Constant;
 import com.alibaba.nls.client.transport.ConnectionListener;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public abstract class SpeechRecognizerListener implements ConnectionListener {
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     Logger logger = LoggerFactory.getLogger(SpeechRecognizerListener.class);
     protected SpeechRecognizer recognizer;
 
@@ -82,12 +84,12 @@ public abstract class SpeechRecognizerListener implements ConnectionListener {
     }
 
     @Override
-    public void onMessage(String message) {
+    public void onMessage(String message) throws IOException {
         if (message == null || message.trim().length() == 0) {
             return;
         }
         logger.debug("on message:{}", message);
-        SpeechRecognizerResponse response = JSON.parseObject(message, SpeechRecognizerResponse.class);
+        SpeechRecognizerResponse response = OBJECT_MAPPER.readValue(message, SpeechRecognizerResponse.class);
         if (isRecReady(response)) {
             recognizer.markReady();
             onStarted(response);

@@ -1,20 +1,20 @@
 package com.alibaba.nls.client.protocol.dm;
 
-import java.nio.ByteBuffer;
-
-import com.alibaba.fastjson.JSON;
 import com.alibaba.nls.client.protocol.Constant;
 import com.alibaba.nls.client.transport.ConnectionListener;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /**
  * @author zhishen.ml
  * @date 2017/11/24
- *
  */
 public abstract class DialogAssistantListener implements ConnectionListener {
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     Logger logger = LoggerFactory.getLogger(DialogAssistantListener.class);
     private DialogAssistant dialogAssistant;
 
@@ -48,18 +48,21 @@ public abstract class DialogAssistantListener implements ConnectionListener {
 
     /**
      * 语音识别结束,返回最终结果
+     *
      * @param response
      */
     public abstract void onRecognitionCompleted(DialogAssistantResponse response);
 
     /**
      * 对话结果生成
+     *
      * @param response
      */
     public abstract void onDialogResultGenerated(DialogAssistantResponse response);
 
     /**
      * 失败处理
+     *
      * @param response
      */
     public abstract void onFail(DialogAssistantResponse response);
@@ -81,14 +84,13 @@ public abstract class DialogAssistantListener implements ConnectionListener {
     }
 
 
-
     @Override
-    public void onMessage(String message) {
+    public void onMessage(String message) throws IOException {
         if (message == null || message.trim().length() == 0) {
             return;
         }
         logger.debug("on message:{}", message);
-        DialogAssistantResponse response = JSON.parseObject(message, DialogAssistantResponse.class);
+        DialogAssistantResponse response = OBJECT_MAPPER.readValue(message, DialogAssistantResponse.class);
         if (isReady(response)) {
             onRecognitionStarted(response);
             dialogAssistant.markReady();
@@ -159,7 +161,6 @@ public abstract class DialogAssistantListener implements ConnectionListener {
         }
         return false;
     }
-
 
 
     private boolean isTaskFailed(DialogAssistantResponse response) {

@@ -3,6 +3,7 @@ package com.alibaba.nls.client.protocol.dm;
 import com.alibaba.nls.client.protocol.Constant;
 import com.alibaba.nls.client.protocol.NlsClient;
 import com.alibaba.nls.client.protocol.SpeechReqProtocol;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import static com.alibaba.nls.client.protocol.dm.UDSConstant.*;
 
@@ -19,7 +20,7 @@ public class DialogAssistantV2 extends DialogAssistant {
     }
 
     @Override
-    protected String buildStopMessage(){
+    protected String buildStopMessage() throws JsonProcessingException {
         SpeechReqProtocol req = new SpeechReqProtocol();
         req.setAppKey(getAppKey());
         req.header.put(Constant.PROP_NAMESPACE, VALUE_NAMESPACE_DIALOG2);

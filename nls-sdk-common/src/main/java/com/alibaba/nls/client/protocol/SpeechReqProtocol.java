@@ -19,10 +19,11 @@ package com.alibaba.nls.client.protocol;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.nls.client.transport.Connection;
 import com.alibaba.nls.client.util.IdGen;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,10 +33,11 @@ import static com.alibaba.nls.client.protocol.SpeechReqProtocol.State.STATE_REQU
 /**
  * @author zhishen.ml
  * @date 2017/11/24
- *
+ * <p>
  * 语音请求基础协议类
  */
 public class SpeechReqProtocol {
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     static Logger logger = LoggerFactory.getLogger(SpeechReqProtocol.class);
     protected String accessToken;
     protected Connection conn;
@@ -229,6 +231,7 @@ public class SpeechReqProtocol {
 
     /**
      * 获取appkey
+     *
      * @return
      */
     public String getAppKey() {
@@ -237,6 +240,7 @@ public class SpeechReqProtocol {
 
     /**
      * 设置appkey
+     *
      * @param appKey
      */
     public void setAppKey(String appKey) {
@@ -245,6 +249,7 @@ public class SpeechReqProtocol {
 
     /**
      * 获取task_id
+     *
      * @return
      */
     public String getTaskId() {
@@ -257,6 +262,7 @@ public class SpeechReqProtocol {
 
     /**
      * 设置上下文信息,如设备信息,位置信息等,用于需要使用或记录相关信息的场景
+     *
      * @param key
      * @param obj
      */
@@ -266,6 +272,7 @@ public class SpeechReqProtocol {
 
     /**
      * 设置自定义请求参数,用于设置语音服务的高级属性,或新功能
+     *
      * @param key
      * @param value
      */
@@ -277,30 +284,30 @@ public class SpeechReqProtocol {
         return accessToken;
     }
 
-    public String serialize() {
+    public String serialize() throws JsonProcessingException {
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("header", header);
         if (payload != null) {
             result.put("payload", payload);
             result.put("context", context);
         }
-        return JSON.toJSONString(result);
+        return OBJECT_MAPPER.writeValueAsString(result);
     }
 
-    public Connection getConnection(){
+    public Connection getConnection() {
         return conn;
     }
 
-    public State getState(){
+    public State getState() {
         return state;
     }
 
-    public void start() throws Exception{
+    public void start() throws Exception {
         state.checkStart();
-        Map<String,Long> network=new HashMap<String, Long>();
-        network.put("connect_cost",conn.getConnectingLatency());
-        network.put("upgrade_cost",conn.getWsHandshakeLatency());
-        putContext("network",network);
+        Map<String, Long> network = new HashMap<String, Long>();
+        network.put("connect_cost", conn.getConnectingLatency());
+        network.put("upgrade_cost", conn.getWsHandshakeLatency());
+        putContext("network", network);
         String taskId = IdGen.genId();
         currentTaskId = taskId;
         setTaskId(currentTaskId);

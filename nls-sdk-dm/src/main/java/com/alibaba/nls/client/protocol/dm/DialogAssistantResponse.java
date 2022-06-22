@@ -1,24 +1,30 @@
 package com.alibaba.nls.client.protocol.dm;
 
-import java.util.List;
-
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.nls.client.protocol.SpeechResProtocol;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author zhishen.ml
  * @date 2017/11/24
- *
+ * <p>
  * 唤醒服务返回结果
  */
 public class DialogAssistantResponse extends SpeechResProtocol {
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     /**
      * 检测到的关键词，null表示没有监测到
      *
      * @return
      */
     public Boolean getAccepted() {
-        return (Boolean)payload.get("accepted");
+        return (Boolean) payload.get("accepted");
     }
 
     /**
@@ -39,7 +45,7 @@ public class DialogAssistantResponse extends SpeechResProtocol {
      * @return
      */
     public String getAsrResult() {
-        return (String)payload.get("result");
+        return (String) payload.get("result");
     }
 
     /**
@@ -48,7 +54,7 @@ public class DialogAssistantResponse extends SpeechResProtocol {
      * @return
      */
     public String getActionContext() {
-        return (String)payload.get("action_context");
+        return (String) payload.get("action_context");
     }
 
     /**
@@ -57,7 +63,7 @@ public class DialogAssistantResponse extends SpeechResProtocol {
      * @return
      */
     public String getDisplayText() {
-        return (String)payload.get("display_text");
+        return (String) payload.get("display_text");
     }
 
     /**
@@ -66,7 +72,7 @@ public class DialogAssistantResponse extends SpeechResProtocol {
      * @return
      */
     public String getSpokenText() {
-        return (String)payload.get("spoken_text");
+        return (String) payload.get("spoken_text");
     }
 
     /**
@@ -75,7 +81,7 @@ public class DialogAssistantResponse extends SpeechResProtocol {
      * @return
      */
     public String getAction() {
-        return (String)payload.get("action");
+        return (String) payload.get("action");
     }
 
     /**
@@ -83,10 +89,15 @@ public class DialogAssistantResponse extends SpeechResProtocol {
      *
      * @return
      */
-    public List<Object> getActionParams() {
-        JSONArray params = (JSONArray)payload.get("action_params");
+    public List<Object> getActionParams() throws IOException {
+        String params = (String) payload.get("action_params");
         if (params != null) {
-            return params.toJavaList(Object.class);
+            JsonNode jsonNode = OBJECT_MAPPER.readTree(params);
+            List<Object> list = new ArrayList<>();
+            for (JsonNode node : jsonNode) {
+                list.add(node);
+            }
+            return list;
         } else {
             return null;
         }

@@ -16,6 +16,7 @@ import com.alibaba.nls.client.protocol.SampleRateEnum;
 import com.alibaba.nls.client.protocol.SpeechReqProtocol;
 import com.alibaba.nls.client.util.IdGen;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -344,7 +345,7 @@ public class DialogAssistant extends SpeechReqProtocol {
         }
     }
 
-    protected String buildStopMessage(){
+    protected String buildStopMessage() throws JsonProcessingException {
         SpeechReqProtocol req = new SpeechReqProtocol();
         req.setAppKey(getAppKey());
         req.header.put(Constant.PROP_NAMESPACE, VALUE_NAMESPACE_DIALOG);

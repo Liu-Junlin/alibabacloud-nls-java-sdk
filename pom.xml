@@ -4,7 +4,7 @@
 
     <groupId>com.alibaba.nls</groupId>
     <artifactId>nls-sdk-java</artifactId>
-    <version>2.1.1</version>
+    <version>2.1.1.TD</version>
     <packaging>pom</packaging>
 
     <name>nls-sdk-java</name>
@@ -77,13 +77,14 @@
 
     <distributionManagement>
         <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <id>nexus-tdsj</id>
+            <name>tdsj Snapshot</name>
+            <url>https://nexus.elanbase.com/repository/tdsj-snapshot/</url>
         </snapshotRepository>
         <repository>
-            <id>ossrh</id>
-            <name>Maven Central Staging Repository</name>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <id>nexus-tdsj</id>
+            <name>tdsj releases</name>
+            <url>https://nexus.elanbase.com/repository/tdsj-release/</url>
         </repository>
     </distributionManagement>
 
@@ -122,22 +123,6 @@
                             <encoding>UTF-8</encoding>
                         </configuration>
                     </plugin>
-                    <!--sign-->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-
                     <!--code-->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>

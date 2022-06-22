@@ -16,6 +16,12 @@
 
 package com.alibaba.nls.client;
 
+import com.alibaba.nls.client.util.Signer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,13 +31,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.nls.client.util.Signer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 访问令牌是用户访问智能语音服务的凭证
@@ -47,8 +46,8 @@ public class AccessToken {
     private String token;
     private long expireTime;
 
-    private final static int HTTP_SCCESS_CODE=200;
-    private final static int HTTP_FAIL_CODE=500;
+    private final static int HTTP_SCCESS_CODE = 200;
+    private final static int HTTP_FAIL_CODE = 500;
 
     private int statusCode;
     private String errorMessage;
@@ -168,16 +167,16 @@ public class AccessToken {
             header.put(HEADER_CONTENT_MD5, bodyMd5);
             header.put(HEADER_DATE, dateString);
             String stringToSign = method
-                + "\n"
-                + ACCEPT
-                + "\n"
-                + bodyMd5
-                + "\n"
-                + CONTENT_TYPE
-                + "\n"
-                + dateString
-                + "\n"
-                + "/pop/2018-05-18/tokens";
+                    + "\n"
+                    + ACCEPT
+                    + "\n"
+                    + bodyMd5
+                    + "\n"
+                    + CONTENT_TYPE
+                    + "\n"
+                    + dateString
+                    + "\n"
+                    + "/pop/2018-05-18/tokens";
             String signature = Signer.signString(stringToSign, akSecret);
             String authHeader = "acs " + akId + ":" + signature;
             header.put(HEADER_AUTHORIZATION, authHeader);
@@ -193,7 +192,7 @@ public class AccessToken {
     /**
      * 构造实例
      *
-     * @param accessKeyId 阿里云akid
+     * @param accessKeyId     阿里云akid
      * @param accessKeySecret 阿里云secret key
      */
     public AccessToken(String accessKeyId, String accessKeySecret) {
@@ -212,10 +211,11 @@ public class AccessToken {
         HttpResponse response = send(request);
         if (response.getErrorMessage() == null) {
             String result = response.getResult();
-            JSONObject jsonObject = JSON.parseObject(result);
-            if (jsonObject.containsKey(NODE_TOKEN)) {
-                this.token = jsonObject.getJSONObject(NODE_TOKEN).getString("Id");
-                this.expireTime = jsonObject.getJSONObject(NODE_TOKEN).getIntValue("ExpireTime");
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(result);
+            if (jsonNode.has(NODE_TOKEN)) {
+                this.token = jsonNode.get(NODE_TOKEN).asText();
+                this.expireTime = jsonNode.get("ExpireTime").asInt();
             } else {
                 statusCode = HTTP_FAIL_CODE;
                 errorMessage = "Received unexpected result: " + result;
@@ -242,7 +242,7 @@ public class AccessToken {
             URL realUrl = new URL(request.getUrl());
             System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
             // 打开和URL之间的连接
-            HttpURLConnection conn = (HttpURLConnection)realUrl.openConnection();
+            HttpURLConnection conn = (HttpURLConnection) realUrl.openConnection();
             // 设置通用的请求属性
             conn.setRequestMethod(request.getMethod());
             if (HttpRequest.METHOD_POST.equals(request.getMethod())) {
@@ -299,5 +299,6 @@ public class AccessToken {
         }
         return byteArrayOutputStream.toByteArray();
     }
+
 
 }

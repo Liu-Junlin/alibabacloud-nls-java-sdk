@@ -16,13 +16,14 @@
 
 package com.alibaba.nls.client.protocol.tts;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.nls.client.protocol.Constant;
 import com.alibaba.nls.client.transport.ConnectionListener;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public abstract class SpeechSynthesizerListener implements ConnectionListener {
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     Logger logger = LoggerFactory.getLogger(SpeechSynthesizerListener.class);
     private CountDownLatch completeLatch;
     private CountDownLatch readyLatch;
@@ -70,12 +72,12 @@ public abstract class SpeechSynthesizerListener implements ConnectionListener {
 
 
     @Override
-    public void onMessage(String message) {
+    public void onMessage(String message) throws IOException {
         if (message == null || message.trim().length() == 0) {
             return;
         }
         logger.debug("on message:{}", message);
-        SpeechSynthesizerResponse response = JSON.parseObject(message, SpeechSynthesizerResponse.class);
+        SpeechSynthesizerResponse response = OBJECT_MAPPER.readValue(message, SpeechSynthesizerResponse.class);
         if (isComplete(response)) {
             onComplete(response);
             completeLatch.countDown();
